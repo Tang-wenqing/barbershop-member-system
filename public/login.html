@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>登录 - 理发店记账系统</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-page">
+  <div class="login-box">
+    <h1>💈 理发店记账系统</h1>
+    <form id="loginForm">
+      <div class="form-item">
+        <label for="username">账号</label>
+        <input id="username" class="input" type="text" autocomplete="username" placeholder="请输入账号">
+      </div>
+      <div class="form-item">
+        <label for="password">密码</label>
+        <input id="password" class="input" type="password" autocomplete="current-password" placeholder="请输入密码">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">登 录</button>
+      <p class="error-msg" id="errorMsg"></p>
+    </form>
+  </div>
+  <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>理发店记账系统</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">💈 理发店记账系统</div>
+  <div class="topbar-right">
+    <span class="current-user" id="currentUser"></span>
+    <button class="btn btn-ghost" id="logoutBtn">退出</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="consume">消费扣费</button>
+  <button class="tab" data-tab="members">会员管理</button>
+  <button class="tab" data-tab="orders">流水记录</button>
+</nav>
+
+<main class="container">
+
+  <!-- ========== 消费扣费 ========== -->
+  <section class="tab-panel active" id="panel-consume">
+    <div class="card">
+      <h2 class="card-title">1. 查找会员</h2>
+      <div class="search-row">
+        <input id="searchInput" class="input" type="tel" placeholder="输入完整手机号或后 4 位" autocomplete="off">
+        <button class="btn btn-primary" id="searchBtn">查找</button>
+      </div>
+      <div class="result-list" id="searchResult"></div>
+    </div>
+
+    <div class="card" id="memberCard" style="display:none;">
+      <h2 class="card-title">2. 会员信息</h2>
+      <div class="member-info">
+        <div class="member-row"><span class="label">姓名</span><span class="value" id="mName">-</span></div>
+        <div class="member-row"><span class="label">手机号</span><span class="value" id="mPhone">-</span></div>
+        <div class="member-row"><span class="label">当前余额</span><span class="value balance" id="mBalance">0.00 元</span></div>
+      </div>
+    </div>
+
+    <div class="card" id="consumeCard" style="display:none;">
+      <h2 class="card-title">3. 选择项目并扣费</h2>
+      <div class="form-item">
+        <label>服务项目</label>
+        <select id="serviceSelect" class="input"><option value="">请选择项目</option></select>
+      </div>
+      <div class="price-row" id="priceRow">
+        <span>本项目价格</span>
+        <span class="price-value" id="servicePrice">0.00 元</span>
+      </div>
+      <div class="form-item" id="customAmountItem" style="display:none;">
+        <label>自定义金额（元）</label>
+        <input id="customAmount" class="input" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="例如 38.5">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" id="consumeBtn" disabled>确认扣费</button>
+    </div>
+  </section>
+
+  <!-- ========== 会员管理 ========== -->
+  <section class="tab-panel" id="panel-members">
+    <div class="card">
+      <h2 class="card-title">新增会员</h2>
+      <div class="form-item">
+        <label>姓名</label>
+        <input id="addName" class="input" type="text" placeholder="请输入姓名">
+      </div>
+      <div class="form-item">
+        <label>手机号</label>
+        <input id="addPhone" class="input" type="tel" placeholder="请输入 11 位手机号">
+      </div>
+      <div class="form-item">
+        <label>开卡余额（元，0 表示不开卡）</label>
+        <input id="addBalance" class="input" type="number" min="0" step="0.01" placeholder="例如 200">
+      </div>
+      <button class="btn btn-primary btn-block" id="addMemberBtn">保存会员</button>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">批量导入老会员</h2>
+      <p class="tip">
+        每行一个会员，可自动识别「姓名 / 手机号 / 余额」的顺序。<br>
+        分隔符支持：逗号、中文逗号、Tab、竖线、分号、空格。<br>
+        示例：<br>
+        张三,13800138000,200<br>
+        李四 13900139000 0
+      </p>
+      <textarea id="importText" class="input textarea" rows="8" placeholder="张三,13800138000,200&#10;李四,13900139000,0"></textarea>
+      <div class="form-item" style="margin-top:16px;">
+        <label>重复手机号的处理方式</label>
+        <select id="importMode" class="input">
+          <option value="skip">跳过（保留已有会员，不动）</option>
+          <option value="update">更新（用新数据的姓名和余额覆盖）</option>
+          <option value="add">累加（新余额累加到已有余额上）</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" id="importBtn">开始导入</button>
+      <div class="import-result" id="importResult"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">会员列表</h2>
+      <div class="search-row">
+        <input id="memberSearch" class="input" type="text" placeholder="按姓名或手机号搜索">
+        <button class="btn btn-primary" id="memberSearchBtn">搜索</button>
+        <button class="btn btn-ghost" id="memberRefreshBtn">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>姓名</th><th>手机号</th><th>余额</th><th>开卡时间</th><th>充值</th><th>删除</th>
+            </tr>
+          </thead>
+          <tbody id="memberTbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button class="btn btn-ghost" id="memberPrevPage">上一页</button>
+        <span class="page-info" id="memberPageInfo">第 1 / 1 页</span>
+        <button class="btn btn-ghost" id="memberNextPage">下一页</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 流水记录 ========== -->
+  <section class="tab-panel" id="panel-orders">
+    <div class="card">
+      <div class="summary-row">
+        <div class="summary-item"><span class="s-label">今日消费</span><span class="s-value" id="sumConsume">0.00 元</span></div>
+        <div class="summary-item"><span class="s-label">今日充值</span><span class="s-value" id="sumRecharge">0.00 元</span></div>
+        <div class="summary-item"><span class="s-label">消费笔数</span><span class="s-value" id="sumCount">0 笔</span></div>
+        <div class="summary-item"><span class="s-label">会员总余额</span><span class="s-value" id="sumBalance">0.00 元</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="search-row">
+        <input id="orderSearch" class="input" type="text" placeholder="按姓名或手机号搜索流水">
+        <button class="btn btn-primary" id="orderSearchBtn">搜索</button>
+        <button class="btn btn-ghost" id="orderRefreshBtn">刷新</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>时间</th><th>店员</th><th>姓名</th><th>手机号</th>
+              <th>项目</th><th>类型</th><th>金额</th><th>余额</th>
+            </tr>
+          </thead>
+          <tbody id="orderTbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button class="btn btn-ghost" id="prevPage">上一页</button>
+        <span class="page-info" id="pageInfo">第 1 / 1 页</span>
+        <button class="btn btn-ghost" id="nextPage">下一页</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-mask" id="modalMask">
+  <div class="modal">
+    <div class="modal-header" id="modalTitle">提示</div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancel">取消</button>
+      <button class="btn btn-primary" id="modalOk">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

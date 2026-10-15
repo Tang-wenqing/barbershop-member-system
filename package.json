@@ -1,0 +1,16 @@
+{
+  "name": "salon-pos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "理发店会员预存余额记账系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
